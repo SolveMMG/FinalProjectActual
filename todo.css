@@ -16,17 +16,17 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Background Animation */
 .background-animation {
   position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(120deg, #a1c4fd, #c2e9fb, #fbc2eb, #f3a683);
+  background: linear-gradient(120deg, #a1c4fd, #c2e9fb, #fbc2eb, #f3a683); /* Default light gradient */
   background-size: 400% 400%;
   animation: gradientAnimation 15s ease infinite;
   z-index: -1;
+  transition: background 0.5s ease-in-out; /* Smooth transition between modes */
 }
 
 @keyframes gradientAnimation {
@@ -119,6 +119,7 @@ button {
 
 button:hover {
   background-color: #6c757d;
+  color: white;
 }
 
 .filter-buttons button {
@@ -159,14 +160,39 @@ li.completed {
 
 .task-actions i {
   margin-left: 10px;
+  margin-right:5px;
   cursor: pointer;
   color: #555;
   transition: color 0.2s;
 }
 
+#searchWrapper {
+  margin-bottom: 20px;
+}
+
+#searchBar {
+  width: 100%;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+input[type="date"] {
+  flex-grow: 1;
+  padding: 10px;
+  font-size: 1em;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
 body.dark-mode .task-actions i {
   color: #f8f8f2;
 }
+.task-actions i:hover {
+  color: #007bff;
+}
+
 
 .high-priority { border-left: 5px solid red; }
 .medium-priority { border-left: 5px solid yellow; }

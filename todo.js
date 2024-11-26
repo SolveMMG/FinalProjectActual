@@ -8,28 +8,35 @@ function addTask() {
   const taskText = taskInput.value.trim();
   const category = document.getElementById("category").value;
   const priority = document.getElementById("priority").value;
+  const dueDate = document.getElementById("dueDate").value;
 
   if (taskText) {
     tasks.push({
       text: taskText,
       category,
       priority,
+      dueDate: dueDate || "No Due Date",
       completed: false,
       isEditing: false,
     });
     taskInput.value = "";
+    document.getElementById("dueDate").value = "";
     renderTasks();
     toggleFilterButtons();
+    toggleSearchBar();
   }
 }
 
-function renderTasks(filter = 'all') {
+function renderTasks(filter = 'all', searchQuery = '') {
   const taskList = document.getElementById("taskList");
   taskList.innerHTML = "";
 
   const listToRender = showingArchived ? archivedTasks : tasks;
   const filteredTasks = listToRender
-    .filter(task => (filter === 'completed' ? task.completed : filter === 'pending' ? !task.completed : true))
+    .filter(task =>
+      (filter === 'completed' ? task.completed : filter === 'pending' ? !task.completed : true) &&
+      (task.text.toLowerCase().includes(searchQuery.toLowerCase()))
+    )
     .sort((a, b) => a.completed - b.completed);
 
   filteredTasks.forEach((task, index) => {
@@ -38,7 +45,7 @@ function renderTasks(filter = 'all') {
     taskItem.classList.add(`${task.priority}-priority`);
 
     const taskText = document.createElement("span");
-    taskText.innerText = `${task.text} - ${task.category}`;
+    taskText.innerText = `${task.text} - ${task.category} (${task.dueDate})`;
 
     const actionsDiv = document.createElement("div");
     actionsDiv.classList.add("task-actions");
@@ -46,18 +53,22 @@ function renderTasks(filter = 'all') {
     if (!showingArchived) {
       const editButton = document.createElement("i");
       editButton.className = "fas fa-edit";
+      editButton.title = "Edit Task";
       editButton.onclick = () => enableTaskEdit(index);
 
       const completeButton = document.createElement("button");
       completeButton.innerHTML = task.completed ? "Undo" : "Complete";
+      completeButton.title = task.completed ? "Mark as Pending" : "Mark as Completed";
       completeButton.onclick = () => toggleCompleteTask(index);
 
       const deleteButton = document.createElement("i");
       deleteButton.className = "fas fa-trash";
+      deleteButton.title = "Delete Task";
       deleteButton.onclick = () => deleteTask(index);
 
       const archiveButton = document.createElement("i");
       archiveButton.className = "fas fa-archive";
+      archiveButton.title = "Archive Task";
       archiveButton.onclick = () => archiveTask(index);
 
       actionsDiv.appendChild(editButton);
@@ -67,10 +78,12 @@ function renderTasks(filter = 'all') {
     } else {
       const unarchiveButton = document.createElement("i");
       unarchiveButton.className = "fas fa-box-open";
+      unarchiveButton.title = "Unarchive Task";
       unarchiveButton.onclick = () => unarchiveTask(index);
 
       const deleteButton = document.createElement("i");
       deleteButton.className = "fas fa-trash";
+      deleteButton.title = "Delete Task";
       deleteButton.onclick = () => deleteTask(index);
 
       actionsDiv.appendChild(unarchiveButton);
@@ -83,11 +96,15 @@ function renderTasks(filter = 'all') {
   });
 }
 
+
+
+
 function archiveTask(index) {
   archivedTasks.push(tasks[index]);
   tasks.splice(index, 1);
   renderTasks();
   toggleFilterButtons();
+  toggleSearchBar();
 }
 
 function unarchiveTask(index) {
@@ -95,40 +112,26 @@ function unarchiveTask(index) {
   archivedTasks.splice(index, 1);
   renderTasks();
   toggleFilterButtons();
+  toggleSearchBar();
 }
-
-function enableTaskEdit(index) {
-  tasks[index].isEditing = true;
-  renderTasks();
-}
-
-function saveTaskEdit(index, newText) {
-  tasks[index].text = newText;
-  tasks[index].isEditing = false;
-  renderTasks();
-}
-
-function deleteTask(index) {
-  if (showingArchived) {
-    archivedTasks.splice(index, 1);
-  } else {
-    tasks.splice(index, 1);
-  }
-  renderTasks();
-  toggleFilterButtons();
-}
-
-function toggleCompleteTask(index) {
-  tasks[index].completed = !tasks[index].completed;
-  renderTasks();
-}
-
 function toggleDarkMode() {
   darkMode = !darkMode;
   document.body.classList.toggle("dark-mode", darkMode);
+
+  // Update the gradient animation colors
+  const backgroundAnimation = document.querySelector(".background-animation");
+  backgroundAnimation.style.background = darkMode
+    ? "linear-gradient(120deg, #243B55, #2C7744, #206A5D, #144552)" // Dark blue to dark green gradient
+    : "linear-gradient(120deg, #a1c4fd, #c2e9fb, #fbc2eb, #f3a683)"; // Light colorful gradient
+
+  // Restore animation properties
+  backgroundAnimation.style.backgroundSize = "400% 400%";
+  backgroundAnimation.style.animation = "gradientAnimation 15s ease infinite";
+
   document.getElementById("darkModeToggle").innerText = darkMode ? "Light Mode" : "Dark Mode";
   updateTitle();
 }
+
 
 function toggleArchivedView() {
   showingArchived = !showingArchived;
@@ -137,6 +140,7 @@ function toggleArchivedView() {
   renderTasks();
   updateTitle();
   toggleFilterButtons();
+  toggleSearchBar();
 }
 
 function updateTitle() {
@@ -146,7 +150,8 @@ function updateTitle() {
 }
 
 function filterTasks(status) {
-  renderTasks(status);
+  const searchQuery = document.getElementById("searchBar").value.trim();
+  renderTasks(status, searchQuery);
 }
 
 function toggleFilterButtons() {
@@ -154,7 +159,18 @@ function toggleFilterButtons() {
   filterButtons.style.display = (!showingArchived && tasks.length > 0) ? "flex" : "none";
 }
 
+function toggleSearchBar() {
+  const searchBar = document.getElementById("searchWrapper");
+  searchBar.style.display = (!showingArchived && tasks.length > 5) ? "block" : "none";
+}
+
+function searchTasks() {
+  const searchQuery = document.getElementById("searchBar").value.trim();
+  renderTasks('all', searchQuery);
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   renderTasks();
   toggleFilterButtons();
+  toggleSearchBar();
 });
