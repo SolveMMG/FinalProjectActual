@@ -194,6 +194,3 @@ body.dark-mode .task-actions i {
 }
 
 
-.high-priority { border-left: 5px solid red; }
-.medium-priority { border-left: 5px solid yellow; }
-.low-priority { border-left: 5px solid green; }
