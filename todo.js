@@ -1,6 +1,7 @@
 let tasks = [];
 let archivedTasks = [];
-let darkMode = false;
+let darkMode = false; 
+
 let showingArchived = false;
 
 function addTask() {
